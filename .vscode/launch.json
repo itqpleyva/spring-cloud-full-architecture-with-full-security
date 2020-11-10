@@ -1,0 +1,54 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Main<cloud-gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.Main",
+            "projectName": "cloud-gateway",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-EurekaServerApplication<eureka-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.itqpleyva.eurekaserver.EurekaServerApplication",
+            "projectName": "eureka-server",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MainMicro1<micrioservice1>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.MainMicro1",
+            "projectName": "micrioservice1",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MainMicro2<microservicio2>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.MainMicro2",
+            "projectName": "microservicio2",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringJwtSecurityApplication<spring-jwt-security>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.itqpleyva.springjwtsecurity.SpringJwtSecurityApplication",
+            "projectName": "spring-jwt-security",
+            "args": ""
+        }
+    ]
+}

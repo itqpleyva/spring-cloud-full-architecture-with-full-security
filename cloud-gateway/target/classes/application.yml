@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: micro1
+        uri: http://localhost:8081/
+        predicates:
+        - Path=/micro1/**
+      - id: micro2
+        uri: http://localhost:8082/
+        predicates:
+        - Path=/micro2/**
+      - id: authentication-micro
+        uri: http://localhost:8085/
+        predicates:
+        - Path=/auth/**
+  application:
+    name: gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/     
+
+management: 
+  endpoints: 
+    web:
+      exposure: 
+        include: '*' 
+

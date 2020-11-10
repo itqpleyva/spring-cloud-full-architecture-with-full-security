@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Main<microservicio2>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.Main",
+            "projectName": "microservicio2",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MainMicro2<microservicio2>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.MainMicro2",
+            "projectName": "microservicio2",
+            "args": ""
+        }
+    ]
+}
