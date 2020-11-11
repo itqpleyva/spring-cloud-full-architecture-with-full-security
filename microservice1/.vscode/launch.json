@@ -2,16 +2,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-Main<micrioservice1>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
-            "mainClass": "Main.Main",
-            "projectName": "micrioservice1",
-            "args": ""
-        },
-        {
-            "type": "java",
             "name": "Spring Boot-MainMicro1<micrioservice1>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

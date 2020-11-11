@@ -22,13 +22,25 @@
         },
         {
             "type": "java",
-            "name": "Spring Boot-MainMicro1<micrioservice1>",
+            "name": "Spring Boot-MainMicro1<micrioservice1> port 8001",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
             "mainClass": "Main.MainMicro1",
             "projectName": "micrioservice1",
-            "args": ""
+            "args": "",
+            "vmArgs": "-Dserver.port=8001"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MainMicro1<micrioservice1> port 8002",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "Main.MainMicro1",
+            "projectName": "micrioservice1",
+            "args": "",
+            "vmArgs": "-Dserver.port=8002"
         },
         {
             "type": "java",
