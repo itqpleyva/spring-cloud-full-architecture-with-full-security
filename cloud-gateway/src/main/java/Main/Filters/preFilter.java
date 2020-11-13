@@ -3,7 +3,7 @@ package Main.Filters;
 
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.stereotype.Component;
@@ -27,64 +27,64 @@ import reactor.core.publisher.Mono;
 public class preFilter implements GlobalFilter {
 
 AuthClient authClient;
-Boolean flag = false;
+Boolean flag;
+String role ;
 
   @Override
-  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    
-    ServerHttpRequest request = exchange.getRequest();
-    String path = request.getPath().toString();
-    String authenticate_path = "/auth/authenticate";
-    String isvalid_path = "/auth/valid_token";
+  public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
 
-    if (path.equals(authenticate_path)) {// si viene de authentication sigue de largo
-        
-        return chain.filter(exchange);
-    }
-    else{
-             if (request.getHeaders().containsKey("Authorization")) {// preguntando por la cabecera y el token
+      final ServerHttpRequest request = exchange.getRequest();
+      final String path = request.getPath().toString();
+      final String authenticate_path = "/auth/authenticate";
 
-                String autho_headers= request.getHeaders().get("Authorization").get(0);
-                String token = autho_headers.replace("Bearer ", "");
-                System.out.println(token);
-                TokenValidrequest tokenRequest = new TokenValidrequest(token, "user2");
+      if (path.equals(authenticate_path)) {// si viene de authentication sigue de largo
 
-                HttpHeaders headers = new HttpHeaders(); //preparando la peticion con resttemplate
-                RestTemplate restTemplate = new RestTemplate();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("Accept", "application/json");
-                headers.add("Authorization", "Bearer " + token);
-                HttpEntity<TokenValidrequest> request1 = new HttpEntity<>(tokenRequest,headers);
-                String fooResourceUrl = "http://localhost:8085/auth/valid_token";
+          return chain.filter(exchange);
+      } else {
+          if (request.getHeaders().containsKey("Authorization")) {// preguntando por la cabecera y el token
 
-                try {
-                    ResponseEntity<String> response = restTemplate.postForEntity(fooResourceUrl ,request1, String.class);
-                    flag = Boolean.parseBoolean(response.getBody());
-                    
-                } catch (Exception e) {
+              final String autho_headers = request.getHeaders().get("Authorization").get(0);
+              final String token = autho_headers.replace("Bearer ", "");
+              final TokenValidrequest tokenRequest = new TokenValidrequest(token, "user2");
 
-                    return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
-                }
-                
-                
-                if (!flag ) {//llamar metodo token validation de auth
-                       
-                    return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
-               }
-                else{
-                   
-                    return chain.filter(exchange);              
-                }
-            }
-            else{
-                return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
-            } 
-    }
+              final HttpHeaders headers = new HttpHeaders(); // preparando la peticion con resttemplate
+              final RestTemplate restTemplate = new RestTemplate();
+              headers.setContentType(MediaType.APPLICATION_JSON);
+              headers.add("Accept", "application/json");
+              headers.add("Authorization", "Bearer " + token);
+              final HttpEntity<TokenValidrequest> request1 = new HttpEntity<>(tokenRequest, headers);
+              final String fooResourceUrl = "http://localhost:8085/auth/valid_token";
+
+              try {
+                  final ResponseEntity<List> response = restTemplate.postForEntity(fooResourceUrl, request1,
+                          List.class);
+
+                  flag = Boolean.parseBoolean((String) response.getBody().get(0));// guardando el boolean del si el
+                                                                                  // token es valido
+
+                  role = (String) response.getBody().get(1);// guardando el rol del usuario
+
+              } catch (final Exception e) {
+
+                  return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
+              }
+
+              if (!flag) {// llamar metodo token validation de auth
+
+                  return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
+              } else {
+
+                  return chain.filter(exchange);
+              }
+          } else {
+              return this.onError(exchange, "Token invalido", HttpStatus.UNAUTHORIZED);
+          }
+      }
   }
-  
-  private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus)  {
-   
-    ServerHttpResponse response = exchange.getResponse();
+
+  private Mono<Void> onError(final ServerWebExchange exchange, final String err, final HttpStatus httpStatus) {
+
+      final ServerHttpResponse response = exchange.getResponse();
     response.setStatusCode(httpStatus);
 
     return response.setComplete();

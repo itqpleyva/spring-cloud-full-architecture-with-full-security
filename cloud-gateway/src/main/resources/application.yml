@@ -19,6 +19,10 @@ spring:
         - Path=/auth/**
   application:
     name: gateway
+  boot:
+    admin:
+      client:
+       url: http://localhost:8084
 
 logging:
   level:
@@ -35,4 +39,6 @@ management:
     web:
       exposure: 
         include: '*' 
-
+  endpoint:
+    gateway:
+      enabled: true

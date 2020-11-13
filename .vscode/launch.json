@@ -22,25 +22,13 @@
         },
         {
             "type": "java",
-            "name": "Spring Boot-MainMicro1<micrioservice1> port 8001",
+            "name": "Spring Boot-MainMicro1<micrioservice1>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
             "mainClass": "Main.MainMicro1",
             "projectName": "micrioservice1",
-            "args": "",
-            "vmArgs": "-Dserver.port=8001"
-        },
-        {
-            "type": "java",
-            "name": "Spring Boot-MainMicro1<micrioservice1> port 8002",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
-            "mainClass": "Main.MainMicro1",
-            "projectName": "micrioservice1",
-            "args": "",
-            "vmArgs": "-Dserver.port=8002"
+            "args": ""
         },
         {
             "type": "java",
@@ -60,6 +48,16 @@
             "console": "internalConsole",
             "mainClass": "com.itqpleyva.springjwtsecurity.SpringJwtSecurityApplication",
             "projectName": "spring-jwt-security",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AdminApplication<admin>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.itqpleyva.admin.AdminApplication",
+            "projectName": "admin",
             "args": ""
         }
     ]
