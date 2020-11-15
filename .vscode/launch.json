@@ -59,6 +59,15 @@
             "mainClass": "com.itqpleyva.admin.AdminApplication",
             "projectName": "admin",
             "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AdminApplication",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.itqpleyva.admin.AdminApplication",
+            "args": ""
         }
     ]
 }
