@@ -10,6 +10,7 @@ import com.itqpleyva.springjwtsecurity.JwtManagement.Jwt;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationRequest;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationResponse;
 import com.itqpleyva.springjwtsecurity.Models.ValidationRequest;
+import com.itqpleyva.springjwtsecurity.Repositories.ACLRepository;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetails;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class MainController {
 
     @Autowired
     private Jwt jwt;
+
+    @Autowired
+    ACLRepository aclRepository;
 
     @RequestMapping("/home")
     public String home() {
