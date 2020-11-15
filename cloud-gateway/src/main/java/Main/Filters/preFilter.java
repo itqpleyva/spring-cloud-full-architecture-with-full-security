@@ -43,6 +43,8 @@ String role ;
       routeByRoles.put("/micro2/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
       routeByRoles.put("/micro1/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
 
+      routeByRoles.put("/micro1/message", Arrays.asList("GET","ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
+
       //end Buld ACL
       
       final ServerHttpRequest request = exchange.getRequest();
@@ -83,8 +85,11 @@ String role ;
                   flag_role = routeByRoles.get(path).contains(role);//si ese rol tiene esa ruta permitida
 
                   System.out.println("*****************************************El valor de is valid es : "+flag);
+
                   System.out.println("*****************************************El user es : "+autho_user);
+
                   System.out.println("*****************************************El role del user es : "+role);
+
                   System.out.println("*****************************************El valor de is route authorized es : "+flag_role);
 
               } catch (final Exception e) {
