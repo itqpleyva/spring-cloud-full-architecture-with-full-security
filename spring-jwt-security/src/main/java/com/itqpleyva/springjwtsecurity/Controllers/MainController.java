@@ -2,14 +2,14 @@ package com.itqpleyva.springjwtsecurity.Controllers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collector;
+import java.util.Map;
 
 import com.itqpleyva.springjwtsecurity.JwtManagement.Jwt;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationRequest;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationResponse;
-import com.itqpleyva.springjwtsecurity.Models.TokenValidrequest;
+import com.itqpleyva.springjwtsecurity.Models.ValidationRequest;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetails;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,30 +69,36 @@ public class MainController {
     }
 
     @PostMapping(value = "/valid_token")
-    public List<?> isValidToken(@RequestBody final TokenValidrequest token_request) throws Exception {
+    public List<?> isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
 
+        boolean isvalid = true;
+        boolean isValidToken = false;
+        boolean isAuthoPath = false;
+        //ACL
+        final Map<String, List<String>> routeByRoles = new HashMap<String, List<String>>();
+        routeByRoles.put("/auth/authenticate", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
+        routeByRoles.put("/auth/valid_token", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
+        routeByRoles.put("/micro2/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
+        routeByRoles.put("/micro1/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
+        //ACL END
         List<String> result_list = new ArrayList<>();
-
-        boolean isvalid = false;
-
-        final UserDetails user = myuserdatilService.loadUserByUsername(token_request.getUsername());
-
-        final List<?> list_roles = new ArrayList<>(user.getAuthorities());      
+        final MyUserDetails userDetails1 = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();       
+        final List<?> list_roles = new ArrayList<>(userDetails1.getAuthorities());      
 
         try {
 
-            isvalid = jwt.validateToken(token_request.getToken(), user);
+            isValidToken = jwt.validateToken(validation_request.getToken(), userDetails1);
+            isAuthoPath = routeByRoles.get(validation_request.getPath()).contains(list_roles.get(0).toString());
 
         } catch (final Exception e) {
 
             isvalid = false;
         }
-
-            result_list.add(String.valueOf(isvalid));
-            
-            result_list.add(String.valueOf(list_roles.get(0)));
-
-            return result_list;
+            isvalid = isValidToken == true && isAuthoPath == true ? true : false;
+            result_list.add(String.valueOf(isvalid));//añadiendo boolean de token valid           
+            result_list.add(String.valueOf(list_roles.get(0)));//añadiendo rol del usuario
+            return result_list;           
     }
     
 }

@@ -10,10 +10,8 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
-
 import Main.FeignClients.AuthClient;
-import Main.Models.TokenValidrequest;
-
+import Main.Models.ValidationRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.HttpEntity;
@@ -34,24 +32,13 @@ String role ;
 
   @Override
   public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-
-
-      //building ACL
-      final Map<String, List<String>> routeByRoles = new HashMap<String, List<String>>();
-      routeByRoles.put("/auth/authenticate", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-      routeByRoles.put("/auth/valid_token", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-      routeByRoles.put("/micro2/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-      routeByRoles.put("/micro1/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-
-      routeByRoles.put("/micro1/message", Arrays.asList("GET","ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-
-      //end Buld ACL
       
       final ServerHttpRequest request = exchange.getRequest();
-      final String path = request.getPath().toString();
+      final String request_path = request.getPath().toString();
+      final String request_method = request.getMethodValue();
       final String authenticate_path = "/auth/authenticate";
 
-      if (path.equals(authenticate_path)) {// si viene de authentication sigue de largo
+      if (request_path.equals(authenticate_path)) {// si viene de authentication sigue de largo
 
           return chain.filter(exchange);
       } 
@@ -59,22 +46,21 @@ String role ;
       else 
       
       {
-          if (request.getHeaders().containsKey("Authorization") && request.getHeaders().containsKey("User")) {// preguntando por la cabecera y el token
+          if (request.getHeaders().containsKey("Authorization")) {// preguntando por la cabecera y el token
 
               final String autho_headers = request.getHeaders().get("Authorization").get(0);
-              final String autho_user = request.getHeaders().get("User").get(0);
               final String token = autho_headers.replace("Bearer ", "");
-              final TokenValidrequest tokenRequest = new TokenValidrequest(token, autho_user);
-
+              final ValidationRequest tokenRequest = new ValidationRequest(token, request_method, request_path);
               final HttpHeaders headers = new HttpHeaders(); // preparando la peticion con resttemplate
               final RestTemplate restTemplate = new RestTemplate();
               headers.setContentType(MediaType.APPLICATION_JSON);
               headers.add("Accept", "application/json");
               headers.add("Authorization", "Bearer " + token);
-              final HttpEntity<TokenValidrequest> request1 = new HttpEntity<>(tokenRequest, headers);
+              final HttpEntity<ValidationRequest> request1 = new HttpEntity<>(tokenRequest, headers);
               final String fooResourceUrl = "http://localhost:8085/auth/valid_token";
 
               try {
+
                   final ResponseEntity<List> response = restTemplate.postForEntity(fooResourceUrl, request1,
                           List.class);
 
@@ -82,22 +68,12 @@ String role ;
 
                   role = (String) response.getBody().get(1);// guardando el rol del usuario
 
-                  flag_role = routeByRoles.get(path).contains(role);//si ese rol tiene esa ruta permitida
-
-                  System.out.println("*****************************************El valor de is valid es : "+flag);
-
-                  System.out.println("*****************************************El user es : "+autho_user);
-
-                  System.out.println("*****************************************El role del user es : "+role);
-
-                  System.out.println("*****************************************El valor de is route authorized es : "+flag_role);
-
               } catch (final Exception e) {
 
                   return this.onError(exchange, "Failed Authorization", HttpStatus.UNAUTHORIZED);
               }
 
-              if (!flag || !flag_role ){
+              if (!flag){
 
                   return this.onError(exchange, "Failed Authorization", HttpStatus.UNAUTHORIZED);
 
