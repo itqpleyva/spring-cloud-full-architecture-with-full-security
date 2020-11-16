@@ -23,8 +23,6 @@ public class preFilter implements GlobalFilter {
 
 AuthClient authClient;
 Boolean flag;
-Boolean flag_role;
-String role ;
 
   @Override
   public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
@@ -57,12 +55,10 @@ String role ;
 
               try {
 
-                  final ResponseEntity<List> response = restTemplate.postForEntity(fooResourceUrl, request1,
-                          List.class);
+                  final ResponseEntity<Boolean> response = restTemplate.postForEntity(fooResourceUrl, request1,
+                          Boolean.class);
 
-                  flag = Boolean.parseBoolean((String) response.getBody().get(0));// guardando el boolean del valid token                                                                                // token es valido
-
-                  role = (String) response.getBody().get(1);// guardando el rol del usuario
+                  flag = response.getBody();// guardando el boolean del valid token                                                                                // token es valido
 
               } catch (final Exception e) {
 

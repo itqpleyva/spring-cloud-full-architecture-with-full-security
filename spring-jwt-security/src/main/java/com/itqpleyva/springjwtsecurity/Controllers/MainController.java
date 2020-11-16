@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.itqpleyva.springjwtsecurity.JwtManagement.Jwt;
+import com.itqpleyva.springjwtsecurity.Models.ACLModel;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationRequest;
 import com.itqpleyva.springjwtsecurity.Models.AuthenticationResponse;
 import com.itqpleyva.springjwtsecurity.Models.ValidationRequest;
@@ -14,6 +15,7 @@ import com.itqpleyva.springjwtsecurity.Repositories.ACLRepository;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetails;
 import com.itqpleyva.springjwtsecurity.Services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,19 +75,12 @@ public class MainController {
     }
 
     @PostMapping(value = "/valid_token")
-    public List<?> isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
+    public Boolean isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
 
         boolean isvalid = true;
         boolean isValidToken = false;
         boolean isAuthoPath = false;
-        //ACL
-        final Map<String, List<String>> routeByRoles = new HashMap<String, List<String>>();
-        routeByRoles.put("/auth/authenticate", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-        routeByRoles.put("/auth/valid_token", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-        routeByRoles.put("/micro2/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-        routeByRoles.put("/micro1/message", Arrays.asList("ROLE_ADMIN","ROLE_USER","ROLE_MANAGER"));
-        //ACL END
-        List<String> result_list = new ArrayList<>();
+
         final MyUserDetails userDetails1 = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();       
         final List<?> list_roles = new ArrayList<>(userDetails1.getAuthorities());      
@@ -93,16 +88,32 @@ public class MainController {
         try {
 
             isValidToken = jwt.validateToken(validation_request.getToken(), userDetails1);
-            isAuthoPath = routeByRoles.get(validation_request.getPath()).contains(list_roles.get(0).toString());
+        //    isAuthoPath = routeByRoles.get(validation_request.getPath()).contains(list_roles.get(0).toString());
+            ACLModel acl_match = new ACLModel(validation_request.getPath(), validation_request.getMethod(), null);
+            Example<ACLModel> acl_example = Example.of(acl_match);
+            List<ACLModel> acl_list = aclRepository.findAll(acl_example);
+
+            if (acl_list.size()== 0) {
+               
+                isAuthoPath = false;
+
+            }else if(!acl_list.get(0).getAllowed_roles().contains(list_roles.get(0).toString())){
+
+                isAuthoPath = false;
+            }
+            else{
+                
+                isAuthoPath = true;
+            }
+            
 
         } catch (final Exception e) {
 
             isvalid = false;
         }
+
             isvalid = isValidToken == true && isAuthoPath == true ? true : false;
-            result_list.add(String.valueOf(isvalid));//añadiendo boolean de token valid           
-            result_list.add(String.valueOf(list_roles.get(0)));//añadiendo rol del usuario
-            return result_list;           
+            return isvalid;           
     }
     
 }
