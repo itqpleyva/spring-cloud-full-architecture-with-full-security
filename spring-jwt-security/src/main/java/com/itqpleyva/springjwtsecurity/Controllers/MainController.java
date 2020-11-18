@@ -77,9 +77,9 @@ public class MainController {
     @PostMapping(value = "/valid_token")
     public Boolean isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
 
-        boolean isvalid = true;
-        boolean isValidToken = false;
-        boolean isAuthoPath = false;
+        boolean isvalid = true;// variable para dar autorizacion
+        boolean isValidToken = false;// variable para token valido o no
+        boolean isAuthoPath = false;//variable para ruta autorizada o no
 
         final MyUserDetails userDetails1 = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();       

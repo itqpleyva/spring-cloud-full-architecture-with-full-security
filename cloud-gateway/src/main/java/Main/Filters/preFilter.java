@@ -2,8 +2,12 @@ package Main.Filters;
 
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
@@ -21,9 +25,15 @@ import reactor.core.publisher.Mono;
 @Component
 public class preFilter implements GlobalFilter {
 
-AuthClient authClient;
-Boolean flag;
+    
+    AuthClient authClient;
+    Boolean flag;
+ 
+    @Autowired
+    RestTemplate restTemplate; 
+    
 
+    
   @Override
   public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
       
@@ -46,20 +56,20 @@ Boolean flag;
               final String token = autho_headers.replace("Bearer ", "");
               final ValidationRequest tokenRequest = new ValidationRequest(token, request_method, request_path);
               final HttpHeaders headers = new HttpHeaders(); // preparando la peticion con resttemplate
-              final RestTemplate restTemplate = new RestTemplate();
               headers.setContentType(MediaType.APPLICATION_JSON);
               headers.add("Accept", "application/json");
               headers.add("Authorization", "Bearer " + token);
               final HttpEntity<ValidationRequest> request1 = new HttpEntity<>(tokenRequest, headers);
-              final String fooResourceUrl = "http://localhost:8085/auth/valid_token";
+
+              final String fooResourceUrl = "http://authentication-micro/auth/valid_token";
 
               try {
 
                   final ResponseEntity<Boolean> response = restTemplate.postForEntity(fooResourceUrl, request1,
                           Boolean.class);
 
-                  flag = response.getBody();// guardando el boolean del valid token                                                                                // token es valido
-
+                  flag = response.getBody();// guardando el boolean del valid token     
+                  
               } catch (final Exception e) {
 
                   return this.onError(exchange, "Failed Authorization", HttpStatus.UNAUTHORIZED);
