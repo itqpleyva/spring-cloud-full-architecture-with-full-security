@@ -26,6 +26,8 @@
 
     GET: http://localhost:8080/micro2/message
     
+    must have AUTHORIZATION HEADER = Bearer token
+    
     IF token is valid and route is authorized
     
     RETURN: HELLO from microservice 2
@@ -33,6 +35,8 @@
 <hr>
 
     GET: http://localhost:8080/micro1/message
+    
+    must have AUTHORIZATION HEADER = Bearer token
     
     IF token is valid and route is authorized
     
