@@ -51,44 +51,56 @@
       
  <h4>Main Method to control token validation and authorization:</h4>
  
-           @PostMapping(value = "/valid_token")
-          public Boolean isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
+      @PostMapping(value = "/valid_token")
+      public Boolean isValidRequest(@RequestBody final ValidationRequest validation_request) throws Exception {
 
-              boolean isvalid = true;// variable para dar autorizacion
-              boolean isValidToken = false;// variable para token valido o no
-              boolean isAuthoPath = false;//variable para ruta autorizada o no
+        boolean isvalid = true;// variable para dar autorizacion
+        boolean isValidToken = false;// variable para token valido o no
+        boolean isAuthoPath = false;//variable para ruta autorizada o no
 
-              final MyUserDetails userDetails1 = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication()
-              .getPrincipal();       
-              final List<?> list_roles = new ArrayList<>(userDetails1.getAuthorities());      
+        JPQLQuery<?> query = new JPAQuery<>(entityManager);
 
-              try {
+        final MyUserDetails userDetails1 = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();       
+        final List<?> list_roles = new ArrayList<>(userDetails1.getAuthorities());      
 
-                  isValidToken = jwt.validateToken(validation_request.getToken(), userDetails1);
-              //    isAuthoPath = routeByRoles.get(validation_request.getPath()).contains(list_roles.get(0).toString());
-                  ACLModel acl_match = new ACLModel(validation_request.getPath(), validation_request.getMethod(), null);
-                  Example<ACLModel> acl_example = Example.of(acl_match);
-                  List<ACLModel> acl_list = aclRepository.findAll(acl_example);
+        try {
 
-                  if (acl_list.size()== 0) {
+            isValidToken = jwt.validateToken(validation_request.getToken(), userDetails1);
 
-                      isAuthoPath = false;
+         QACLModel aclModel = QACLModel.aCLModel;
+         String r = list_roles.get(0).toString();
+         List<ACLModel> acl_list =                      query.select(aclModel).from(aclModel).where(aclModel.method.like(validation_request.getMethod())).where(aclModel.allowed_roles.like("%"+r+"%")).fetch();
+         PathPatternParser pathPattern = new PathPatternParser();
+         pathPattern.setCaseSensitive(false);
 
-                  }else if(!acl_list.get(0).getAllowed_roles().contains(list_roles.get(0).toString())){
+            if (acl_list.size()== 0) {
+               
+                isAuthoPath = false;
 
-                      isAuthoPath = false;
-                  }
-                  else{
+            }
+            else{
+                
+                Optional<ACLModel> acl= acl_list.stream().filter(u ->{
+                    PathPattern p = pathPattern.parse(u.getPath());
+                    return p.matches(PathContainer.parsePath(validation_request.getPath()));
+                } ).findFirst();
 
-                      isAuthoPath = true;
-                  }
+                if (acl.isPresent()) {
 
+                    isAuthoPath = true;
+                }
+                else{
 
-              } catch (final Exception e) {
+                    isAuthoPath = false;
+                }               
+            }           
 
-                  isvalid = false;
-              }
+        } catch (final Exception e) {
 
-                  isvalid = isValidToken == true && isAuthoPath == true ? true : false;
-                  return isvalid;           
-          }
+            isvalid = false;
+        }
+
+            isvalid = isValidToken == true && isAuthoPath == true ? true : false;
+            return isvalid;           
+    }
