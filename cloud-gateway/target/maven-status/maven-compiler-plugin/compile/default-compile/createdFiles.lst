@@ -1,5 +1,5 @@
+Main\Models\ValidationRequest.class
 Main\SpringCloudConfig.class
-Main\Models\TokenValidrequest.class
 Main\Main.class
 Main\FeignClients\AuthClient.class
 Main\Filters\preFilter.class
